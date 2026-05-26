@@ -1,9 +1,9 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import Dashboard from './pages/Dashboard'; // ДОБАВИЛИ ИМПОРТ
 
-// Заглушки для оставшихся страниц (позже заменим)
-const Dashboard = () => <div className="p-4 text-center">Личный кабинет</div>;
+// Заглушки для оставшихся страниц (Оформить заявку и Админ)
 const CreateBooking = () => <div className="p-4 text-center">Оформить заявку</div>;
 const AdminPanel = () => <div className="p-4 text-center">Панель Администратора</div>;
 
