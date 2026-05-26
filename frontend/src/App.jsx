@@ -1,16 +1,13 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import Dashboard from './pages/Dashboard'; // ДОБАВИЛИ ИМПОРТ
-
-// Заглушки для оставшихся страниц (Оформить заявку и Админ)
-const CreateBooking = () => <div className="p-4 text-center">Оформить заявку</div>;
-const AdminPanel = () => <div className="p-4 text-center">Панель Администратора</div>;
+import Dashboard from './pages/Dashboard';
+import CreateBooking from './pages/CreateBooking';
+import Admin from './pages/Admin';
 
 function App() {
   return (
     <BrowserRouter>
-      {/* Главный контейнер (имитация экрана мобильного телефона) */}
       <div className="flex items-center justify-center min-h-screen">
         <div className="w-[390px] h-[844px] bg-white shadow-2xl relative overflow-y-auto flex flex-col">
           
@@ -24,7 +21,10 @@ function App() {
               <Route path="/register" element={<Register />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/create-booking" element={<CreateBooking />} />
-              <Route path="/admin" element={<AdminPanel />} />
+              
+              {/* РОУТ АДМИНА */}
+              <Route path="/admin" element={<Admin />} /> 
+              
               <Route path="*" element={<Navigate to="/login" replace />} />
             </Routes>
           </main>
