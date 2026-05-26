@@ -126,6 +126,12 @@ export default function Admin() {
                             <div className="text-xs text-gray-600 mb-3">
                                 <span className="font-semibold">Дата банкета:</span> {booking.event_date}
                             </div>
+
+							{booking.reviews && booking.reviews.length > 0 && (
+								<div className="mt-2 bg-indigo-50 p-2 rounded-lg border border-indigo-100 text-xs text-indigo-900 italic">
+									<span className="font-bold not-italic">Отзыв клиента:</span> "{booking.reviews[0].text}"
+								</div>
+							)}
                             
                             {/* Инструменты изменения статуса */}
                             <div className="flex gap-2 border-t pt-2 mt-2">

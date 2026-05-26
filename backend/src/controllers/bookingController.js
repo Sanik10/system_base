@@ -1,4 +1,4 @@
-const { Booking, User } = require('../models/models');
+const { Booking, User, Review } = require('../models/models');
 
 class BookingController {
     // 1. Создать заявку (Пользователь)
@@ -20,7 +20,10 @@ class BookingController {
     // 2. Получить свои заявки (Пользователь)
     async getMine(req, res) {
         try {
-            const bookings = await Booking.findAll({ where: { userId: req.user.id } });
+            const bookings = await Booking.findAll({ 
+                where: { userId: req.user.id },
+                include: Review
+            });
             res.json(bookings);
         } catch (e) {
             res.status(500).json({ message: "Ошибка при получении заявок" });
@@ -30,8 +33,9 @@ class BookingController {
     // 3. Получить ВСЕ заявки (Админ)
     async getAll(req, res) {
         try {
-            // include: User добавит данные пользователя (ФИО, телефон), чтобы админ видел, чья заявка
-            const bookings = await Booking.findAll({ include: User }); 
+            const bookings = await Booking.findAll({ 
+                include: [User, Review]
+            }); 
             res.json(bookings);
         } catch (e) {
             res.status(500).json({ message: "Ошибка при получении заявок" });

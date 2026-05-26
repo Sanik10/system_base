@@ -92,25 +92,35 @@ export default function Dashboard() {
                                 </div>
                             </div>
                             
-                            {booking.status !== 'Новая' && (
-                                <div className="mt-3 bg-slate-50 p-3 rounded-xl border border-slate-100">
-                                    <p className="text-xs font-medium text-slate-500 mb-2">Оставить отзыв:</p>
-                                    <div className="flex gap-2">
-                                        <input 
-                                            type="text" placeholder="Всё супер!..."
-                                            className="flex-1 bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                                            value={reviewText[booking.id] || ''}
-                                            onChange={(e) => setReviewText({...reviewText, [booking.id]: e.target.value})}
-                                        />
-                                        <button 
-                                            onClick={() => submitReview(booking.id)}
-                                            className="bg-slate-800 text-white text-xs font-semibold px-4 py-1.5 rounded-lg active:scale-95 transition-transform"
-                                        >
-                                            Отправить
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
+						{booking.reviews && booking.reviews.length > 0 ? (
+						<div className="mt-3 bg-indigo-50 text-indigo-800 p-3 rounded-xl text-sm border border-indigo-100 italic">
+							<span className="font-semibold not-italic">Ваш отзыв: </span> 
+							"{booking.reviews[0].text}"
+						</div>
+						) : (
+							booking.status !== 'Новая' && (
+								<div className="mt-3 bg-slate-50 p-3 rounded-xl border border-slate-100">
+									<p className="text-xs font-medium text-slate-500 mb-2">Оставить отзыв:</p>
+									<div className="flex gap-2">
+										<input 
+											type="text" placeholder="Всё супер!..."
+											className="flex-1 bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+											value={reviewText[booking.id] || ''}
+											onChange={(e) => setReviewText({...reviewText, [booking.id]: e.target.value})}
+										/>
+										<button 
+											onClick={() => {
+												submitReview(booking.id);
+												setTimeout(fetchBookings, 300); // Обновляем список заявок после отправки
+											}}
+											className="bg-slate-800 text-white text-xs font-semibold px-4 py-1.5 rounded-lg active:scale-95 transition-transform"
+										>
+											Отправить
+										</button>
+									</div>
+								</div>
+							)
+						)}
                         </div>
                     ))}
                 </div>
