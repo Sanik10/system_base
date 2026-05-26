@@ -1,0 +1,10 @@
+{
+    "gigacode.displayName": "GigaCode: ИИ-ассистент разработчика",
+    "gigacode.description": "AI-ассистент для разработки в IDE: генерация, объяснение и редактирование кода, включая агентный режим для выполнения задач целиком.",
+    "gigacode.completions.enabled": "Вызывать подсказки автоматически. Если включено, то подсказки появляются при печати, иначе они могут быть вызваны через горячие клавиши",
+    "gigacode.commands.openSettings": "Открыть настройки",
+    "gigacode.commands.checkUpdates": "Проверить обновления...",
+    "gigacode.commands.toggleCompletions": "Показать автодополнение",
+    "gigacode.commands.openChatHistory": "Открыть историю чата",
+    "gigacode.commands.newChat": "Новый чат"
+}

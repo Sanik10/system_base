@@ -1,0 +1,10 @@
+{
+    "gigacode.displayName": "GigaCode: AI-Powered Coding Assistant",
+    "gigacode.description": "AI assistant for IDE development: code generation, explanation, and editing, including agent mode for complete task execution.",
+    "gigacode.completions.enabled": "Invoke completions automatically. If on, then AI completions goes as you type, otherwise it can be invoked by using a keyboard shortcut",
+    "gigacode.commands.openSettings": "Open Settings",
+    "gigacode.commands.checkUpdates": "Check for Updates...",
+    "gigacode.commands.toggleCompletions": "Show a autocompletions",
+    "gigacode.commands.openChatHistory": "Open chat history",
+    "gigacode.commands.newChat": "New Chat"
+}
