@@ -1,10 +1,9 @@
 const Router = require('express');
 const router = new Router();
-
 const authRouter = require('./authRouter');
-const itemRouter = require('./itemRouter');
+const applicationRouter = require('./applicationRouter');
 
 router.use('/auth', authRouter);
-router.use('/items', itemRouter); // В будущем сюда добавишь '/orders', '/clients' и т.д.
+router.use('/applications', applicationRouter);
 
 module.exports = router;

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Конференции.РФ</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; }
+        .screen { display: none; } /* Скрываем все экраны по умолчанию */
+        .active { display: block; }
+        input, select, button { display: block; margin-bottom: 10px; width: 100%; padding: 8px; }
+        .card { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; border-radius: 5px; }
+        .error { color: red; font-size: 12px; }
+        .nav-link { color: blue; cursor: pointer; text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+    <!-- ЭКРАН ВХОДА -->
+    <div id="loginScreen" class="screen active">
+        <h2>Авторизация</h2>
+        <input type="text" id="logLogin" placeholder="Логин">
+        <input type="password" id="logPass" placeholder="Пароль">
+        <button onclick="login()">Войти</button>
+        <p class="error" id="logError"></p>
+        <p class="nav-link" onclick="switchScreen('registerScreen')">Еще не зарегистрированы? Регистрация</p>
+    </div>
+
+    <!-- ЭКРАН РЕГИСТРАЦИИ -->
+    <div id="registerScreen" class="screen">
+        <h2>Регистрация</h2>
+        <input type="text" id="regLogin" placeholder="Логин (мин 6 символов, латиница и цифры)">
+        <input type="password" id="regPass" placeholder="Пароль (мин 8 символов)">
+        <input type="text" id="regName" placeholder="ФИО">
+        <input type="text" id="regPhone" placeholder="Телефон 8(XXX)XXX-XX-XX">
+        <input type="email" id="regEmail" placeholder="E-mail">
+        <button onclick="register()">Создать аккаунт</button>
+        <p class="error" id="regError"></p>
+        <p class="nav-link" onclick="switchScreen('loginScreen')">Уже есть аккаунт? Войти</p>
+    </div>
+
+    <!-- КАБИНЕТ ЮЗЕРА -->
+    <div id="userScreen" class="screen">
+        <h2>Личный кабинет</h2>
+        <button onclick="logout()" style="background: red; color: white;">Выйти</button>
+        
+        <h3>Сформировать заявку</h3>
+        <select id="appRoom">
+            <option value="Аудитория">Аудитория</option>
+            <option value="Коворкинг">Коворкинг</option>
+            <option value="Кинозал">Кинозал</option>
+        </select>
+        <input type="date" id="appDate">
+        <select id="appPayment">
+            <option value="Наличные">Наличными</option>
+            <option value="Перевод">Переводом</option>
+        </select>
+        <button onclick="createApp()">Отправить заявку</button>
+
+        <h3>Мои заявки</h3>
+        <div id="userApps"></div>
+    </div>
+
+    <!-- ПАНЕЛЬ АДМИНА -->
+    <div id="adminScreen" class="screen">
+        <h2>Панель Администратора</h2>
+        <button onclick="logout()" style="background: red; color: white;">Выйти</button>
+        <h3>Все заявки</h3>
+        <div id="adminApps"></div>
+    </div>
+
+    <script>
+        const API = 'http://localhost:5173/api';
+
+        // Инициализация при загрузке страницы
+        window.onload = () => {
+            const token = localStorage.getItem('token');
+            const role = localStorage.getItem('role');
+            if (token) {
+                switchScreen(role === 'ADMIN' ? 'adminScreen' : 'userScreen');
+                loadApps();
+            }
+        };
+
+        function switchScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
+
+        function logout() {
+            localStorage.clear();
+            switchScreen('loginScreen');
+        }
+
+        // --- ВАЛИДАЦИЯ ---
+        function validateReg(login, pass, phone, email) {
+            if (!/^[a-zA-Z0-9]{6,}$/.test(login)) return "Логин мин 6 симв, только латиница/цифры";
+            if (pass.length < 8) return "Пароль мин 8 символов";
+            if (!/^8\(\d{3}\)\d{3}-\d{2}-\d{2}$/.test(phone)) return "Телефон должен быть 8(XXX)XXX-XX-XX";
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return "Неверный e-mail";
+            return null; // Ошибок нет
+        }
+
+        // --- АВТОРИЗАЦИЯ И РЕГИСТРАЦИЯ ---
+        async function authRequest(endpoint, body, errorElementId) {
+            const res = await fetch(`${API}/auth/${endpoint}`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+            const data = await res.json();
+            if (res.ok) {
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('role', data.role);
+                switchScreen(data.role === 'ADMIN' ? 'adminScreen' : 'userScreen');
+                loadApps();
+            } else {
+                document.getElementById(errorElementId).innerText = data.message;
+            }
+        }
+
+        async function login() {
+            authRequest('login', {
+                login: document.getElementById('logLogin').value,
+                password: document.getElementById('logPass').value
+            }, 'logError');
+        }
+
+        async function register() {
+            const body = {
+                login: document.getElementById('regLogin').value,
+                password: document.getElementById('regPass').value,
+                fullName: document.getElementById('regName').value,
+                phone: document.getElementById('regPhone').value,
+                email: document.getElementById('regEmail').value
+            };
+            
+            const error = validateReg(body.login, body.password, body.phone, body.email);
+            if (error) return document.getElementById('regError').innerText = error;
+
+            authRequest('register', body, 'regError');
+        }
+
+        // --- ЗАЯВКИ ---
+        async function loadApps() {
+            const token = localStorage.getItem('token');
+            const role = localStorage.getItem('role');
+            
+            const res = await fetch(`${API}/applications`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const apps = await res.json();
+
+            const container = document.getElementById(role === 'ADMIN' ? 'adminApps' : 'userApps');
+            container.innerHTML = '';
+
+            apps.forEach(app => {
+                let html = `<div class="card">
+                    <b>Помещение:</b> ${app.room} | <b>Дата:</b> ${app.date} <br>
+                    <b>Оплата:</b> ${app.paymentMethod} | <b>Статус:</b> ${app.status} <br>`;
+
+                // Если юзер и статус Мероприятие завершено — показать поле отзыва
+                if (role === 'USER' && app.status === 'Мероприятие завершено') {
+                    html += app.review 
+                        ? `<b>Отзыв:</b> ${app.review}` 
+                        : `<input type="text" id="rev_${app.id}" placeholder="Напишите отзыв">
+                           <button onclick="addReview(${app.id})">Оставить отзыв</button>`;
+                }
+
+                // Если Админ — показать селект смены статуса
+                if (role === 'ADMIN') {
+                    html += `<b>Пользователь:</b> ${app.user.fullName} (${app.user.phone}) <br>
+                        <select id="stat_${app.id}">
+                            <option value="Новая">Новая</option>
+                            <option value="Мероприятие назначено">Мероприятие назначено</option>
+                            <option value="Мероприятие завершено">Мероприятие завершено</option>
+                        </select>
+                        <button onclick="changeStatus(${app.id})">Изменить статус</button>`;
+                }
+
+                html += `</div>`;
+                container.innerHTML += html;
+            });
+        }
+
+        async function createApp() {
+            const body = {
+                room: document.getElementById('appRoom').value,
+                date: document.getElementById('appDate').value,
+                paymentMethod: document.getElementById('appPayment').value
+            };
+            await fetch(`${API}/applications`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+                body: JSON.stringify(body)
+            });
+            loadApps(); // Перерисовать список
+        }
+
+        async function changeStatus(id) {
+            const status = document.getElementById(`stat_${id}`).value;
+            await fetch(`${API}/applications/${id}/status`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+                body: JSON.stringify({ status })
+            });
+            loadApps();
+        }
+
+        async function addReview(id) {
+            const review = document.getElementById(`rev_${id}`).value;
+            await fetch(`${API}/applications/${id}/review`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+                body: JSON.stringify({ review })
+            });
+            loadApps();
+        }
+    </script>
+</body>
+</html>

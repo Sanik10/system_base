@@ -1,13 +1,7 @@
 const User = require('./User');
-const Item = require('./Item');
+const Application = require('./Application');
 
-// ЗДЕСЬ ОПИСЫВАЮТСЯ СВЯЗИ (Relations). 
-// Например, если один пользователь может создать много предметов:
-User.hasMany(Item);
-Item.belongsTo(User);
+User.hasMany(Application);
+Application.belongsTo(User);
 
-// Экспортируем все модели разом
-module.exports = {
-    User,
-    Item
-};
+module.exports = { User, Application };
