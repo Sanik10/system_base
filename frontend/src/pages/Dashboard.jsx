@@ -38,62 +38,73 @@ export default function Dashboard() {
         }
     };
 
-    // Функция для цвета статуса
-    const getStatusColor = (status) => {
-        if (status === 'Банкет назначен') return 'text-orange-600 bg-orange-100';
-        if (status === 'Банкет завершен') return 'text-green-600 bg-green-100';
-        return 'text-gray-600 bg-gray-200'; // Для 'Новая'
+    // Функция для цвета статуса (Современные бейджи)
+    const getStatusStyle = (status) => {
+        if (status === 'Банкет назначен') return 'bg-orange-100 text-orange-700 border-orange-200';
+        if (status === 'Банкет завершен') return 'bg-emerald-100 text-emerald-700 border-emerald-200';
+        return 'bg-slate-100 text-slate-600 border-slate-200'; 
     };
 
     return (
-        <div className="p-4 flex flex-col h-full overflow-y-auto pb-20">
-            {/* Шапка ЛК */}
-            <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold">Личный кабинет</h2>
-                <button onClick={handleLogout} className="text-sm text-red-600 hover:underline">Выйти</button>
+        <div className="p-5 flex flex-col h-full pb-10">
+            <div className="flex justify-between items-center mb-6">
+                <div>
+                    <h2 className="text-2xl font-extrabold text-slate-800">Кабинет</h2>
+                    <p className="text-xs text-slate-500">Управление заявками</p>
+                </div>
+                <button onClick={handleLogout} className="bg-red-50 text-red-600 px-3 py-1.5 rounded-lg text-sm font-medium active:scale-95 transition-transform">
+                    Выйти
+                </button>
             </div>
 
-            {/* Слайдер */}
             <Slider />
 
-            {/* Блок с заявками */}
-            <div className="flex justify-between items-center mb-3">
-                <h3 className="font-semibold text-lg">Мои заявки</h3>
-                <Link to="/create-booking" className="bg-blue-600 text-white text-sm px-3 py-1 rounded hover:bg-blue-700">
+            <div className="flex justify-between items-end mb-4 mt-2">
+                <h3 className="font-bold text-lg text-slate-800">Мои бронирования</h3>
+                <Link to="/create-booking" className="bg-indigo-600 text-white text-sm font-medium px-4 py-2 rounded-xl shadow-md shadow-indigo-200 active:scale-95 transition-transform">
                     + Новая
                 </Link>
             </div>
 
             {bookings.length === 0 ? (
-                <div className="text-center text-gray-500 mt-10">У вас пока нет заявок</div>
+                <div className="text-center text-slate-400 mt-10 bg-slate-100 py-10 rounded-2xl border border-slate-200/60 text-sm">
+                    У вас пока нет заявок
+                </div>
             ) : (
                 <div className="flex flex-col gap-4">
                     {bookings.map(booking => (
-                        <div key={booking.id} className="bg-white p-4 rounded-lg shadow border border-gray-100">
-                            <div className="flex justify-between items-start mb-2">
-                                <span className="font-bold">{booking.room_type}</span>
-                                <span className={`text-xs px-2 py-1 rounded font-semibold ${getStatusColor(booking.status)}`}>
+                        <div key={booking.id} className="bg-white p-4 rounded-2xl shadow-[0_2px_10px_rgb(0,0,0,0.04)] border border-slate-100 hover:shadow-[0_4px_15px_rgb(0,0,0,0.08)] transition-shadow">
+                            <div className="flex justify-between items-center mb-3">
+                                <span className="font-bold text-slate-800">{booking.room_type}</span>
+                                <span className={`text-[10px] uppercase tracking-wider px-2.5 py-1 rounded-full border font-bold ${getStatusStyle(booking.status)}`}>
                                     {booking.status}
                                 </span>
                             </div>
-                            <div className="text-sm text-gray-600 mb-1">Дата: {booking.event_date}</div>
-                            <div className="text-sm text-gray-600 mb-3">Оплата: {booking.payment_method}</div>
                             
-                            {/* Форма отзыва (только если статус НЕ 'Новая') */}
+                            <div className="flex flex-col gap-1 mb-4">
+                                <div className="text-sm flex justify-between border-b border-slate-50 pb-1">
+                                    <span className="text-slate-500">Дата:</span>
+                                    <span className="font-medium text-slate-700">{booking.event_date}</span>
+                                </div>
+                                <div className="text-sm flex justify-between">
+                                    <span className="text-slate-500">Оплата:</span>
+                                    <span className="font-medium text-slate-700">{booking.payment_method}</span>
+                                </div>
+                            </div>
+                            
                             {booking.status !== 'Новая' && (
-                                <div className="mt-3 pt-3 border-t">
-                                    <p className="text-xs text-gray-500 mb-1">Оставить отзыв:</p>
+                                <div className="mt-3 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                                    <p className="text-xs font-medium text-slate-500 mb-2">Оставить отзыв:</p>
                                     <div className="flex gap-2">
                                         <input 
-                                            type="text" 
-                                            placeholder="Напишите впечатления..."
-                                            className="flex-1 border rounded px-2 py-1 text-sm focus:outline-blue-500"
+                                            type="text" placeholder="Всё супер!..."
+                                            className="flex-1 bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                                             value={reviewText[booking.id] || ''}
                                             onChange={(e) => setReviewText({...reviewText, [booking.id]: e.target.value})}
                                         />
                                         <button 
                                             onClick={() => submitReview(booking.id)}
-                                            className="bg-green-600 text-white text-xs px-3 py-1 rounded hover:bg-green-700"
+                                            className="bg-slate-800 text-white text-xs font-semibold px-4 py-1.5 rounded-lg active:scale-95 transition-transform"
                                         >
                                             Отправить
                                         </button>
